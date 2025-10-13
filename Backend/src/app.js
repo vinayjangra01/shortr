@@ -1,10 +1,21 @@
 import express from 'express'
 const app = express();
 
-app.get("/", (res, req) =>   {
-        res.send("Hello world")
+import {nanoid} from 'nanoid'
+
+
+app.use(express.json())
+app.use(express.urlencoded({extended:true}))
+
+app.post("/api/create", (req, res) =>   {
+    const url = req.body
+    console.log(url);
+    res.send("hello world")
 })
 
 app.listen(3000, () => {
-    console.log("Server is running on port")
+    console.log("Server is running on port 3000")
 })
+
+//GET -> redirection
+//POST -> create short URL
