@@ -5,7 +5,7 @@ import {nanoid} from 'nanoid'
 import pool from './config/db.js';
 
 
-dotenv.config(); // 👈 loads variables from .env into process.env
+dotenv.config();
 const app = express();
 
 app.use(express.json())
