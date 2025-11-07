@@ -1,43 +1,58 @@
-import express from 'express'
-import dotenv from 'dotenv';
-import { urlSchema } from './utils/validation.js';
-import {nanoid} from 'nanoid'
-import pool from './config/db.js';
+import express from "express";
+import helmet from 'helmet';
+import cors from 'cors';
+import config from './config/env.js'
+import authRoutes from './routes/authRoutes.js';
+import urlRoutes from './routes/urlRoutes.js';
+import UrlController from './controllers/urlController.js'
+import {errorHandler, notFound} from './middlewares/errorHandler.js';
+import { apiLimiter } from "./middlewares/rateLimiter.js";
 
 
-dotenv.config();
 const app = express();
 
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+app.use(helmet());
+app.use(cors());
+
+app.use(express.json());
+app.use(express.urlencoded({extended:true}));
+
+
+// rate limiting to all API routes
+app.use('/api', apiLimiter);
+
 
 app.get("/health", (req, res) => {
-    res.send("Health is okay");
+    res.json({
+    success: true,
+    message: 'Server is healthy',
+    timestamp: new Date().toISOString(),
+  });
 })
 
+app.use("/api/auth", authRoutes);
+app.use("/api/urls", urlRoutes);
 
+app.get("/:shortUrl", UrlController.redirectUrl);
 
-app.post("/api/create", async (req, res) =>   {
-    try{
-        const validatedData = await urlSchema.validate(req.body);
+//no route matches
+app.use(notFound);
+//in case of some error thrown from any route controller
+app.use(errorHandler);
 
-        const {originalUrl, customUrl, userId, title} = validatedData;
-        const shortId = nanoid(6);
-        const shortUrl = `${process.env.BASE_URL}/${shortId}`;
-        
-        res.json({shortUrl: `${process.env.BASE_URL}/${shortId}`});
-    }
-    catch(error)
-    {
-        res.status(400).json({error: error.message});
-    }
-})
-
-const PORT = process.env.PORT || 5000;
-
+const PORT = config.port;
 app.listen(PORT, () => {
-    console.log("Server is running on port", PORT)
-})
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${config.nodeEnv}`);
+  console.log(`Base URL: ${config.baseUrl}`);
+});
 
 //GET -> redirection
 //POST -> create short URL
+// Requests travel top to bottom in your code.
+
+// Each middleware or route handler is run in order.
+
+// If none of them send a response (res.send, res.json, res.redirect, etc.), Express continues to the next one.
+
+// If any middleware throws an error or calls next(err), Express skips all remaining normal middlewares and jumps directly to an error-handling middleware (a function with 4 parameters: err, req, res, next).
