@@ -155,3 +155,5 @@ class UrlController {
   }
 
 }
+
+export default UrlController;
