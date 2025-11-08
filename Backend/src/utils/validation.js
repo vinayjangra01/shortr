@@ -20,7 +20,7 @@ export const urlSchema = yup.object({
     .max(200, 'Title must not exceed 200 characters'),
 })
 
-export const registeredSchema = yup.object({
+export const registerSchema = yup.object({
     name: yup
     .string()
     .required("Name is required")

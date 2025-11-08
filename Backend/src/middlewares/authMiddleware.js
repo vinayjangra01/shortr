@@ -1,4 +1,4 @@
-import {verifyToken} from '../utils/tokenUtils';
+import {verifyToken} from '../utils/tokenUtils.js';
 
 export const authenticateToken = (req, res, next) => {
     try{

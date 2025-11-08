@@ -1,6 +1,6 @@
 import {nanoid} from 'nanoid';
-import UrlModel from "../models/urlModel";
-import { urlSchema } from '../utils/validation';
+import UrlModel from "../models/urlModel.js";
+import { urlSchema } from '../utils/validation.js';
 import config from '../config/env.js'
 
 class UrlController {
@@ -54,15 +54,7 @@ class UrlController {
         }
         catch(error)
         {
-            if(error.message == "ValidationError")
-            {
-                return res.status(400).json({
-                    success: false,
-                    message: "Validation error",
-                    errors: error.errors
-                });
-            }
-
+            console.log(error.message, "error");
             next(error);
         }
     }
