@@ -7,6 +7,7 @@ import AuthPage from './pages/auth';
 import Dashboard from './pages/dashboard';
 import LinkPage from './pages/link';
 import RedirectLink from './pages/redirect-link';
+import { Toaster } from 'react-hot-toast';
 
 
 const router = createBrowserRouter(
@@ -39,7 +40,10 @@ const router = createBrowserRouter(
 
 function App() {
   return (
+    <>
     <RouterProvider router={router}/>
+    <Toaster />
+    </>
   )
 }
 
