@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import {
   DropdownMenu,
@@ -9,12 +9,17 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { CircleUserRound, LinkIcon, LogOut, PersonStandingIcon, User } from 'lucide-react';
+import { LinkIcon, LogOut, User } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 function Header() {
 
     const navigate = useNavigate();
-    const user = true;
+    const location = useLocation(); 
+
+    const isAuthPage = location.pathname === "/auth"
+
+    const {isLoggedIn, logout, user} = useAuth();
 
   return (
     <nav className='p-4 flex justify-between items-center'>
@@ -22,8 +27,11 @@ function Header() {
             <img src="/logo.png" className='h-10' alt="Shortr logo"/>
         </Link>
         <div>
-            {!user ?
-            <Button  onClick={() => navigate("/auth")}>Login</Button> : (
+            {!isLoggedIn ? (
+                !isAuthPage && (   // 👈 hide Login button on /auth page
+                    <Button onClick={() => navigate("/auth")}>Login</Button>
+                )
+                ) : (
                     <DropdownMenu>
                     <DropdownMenuTrigger className='w-10 rounded-full overflow-hidden'>
                             <Avatar>
@@ -32,7 +40,7 @@ function Header() {
                             </Avatar>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                        <DropdownMenuLabel>Vinay Jangra</DropdownMenuLabel>
+                        <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>
                             <User />
@@ -40,12 +48,12 @@ function Header() {
                         <DropdownMenuItem>
                             <LinkIcon className='mr-2 h-4 w-4'>My Links</LinkIcon>
                             My Links</DropdownMenuItem>
-                        <DropdownMenuItem className='text-red-400'>
+                        <DropdownMenuItem className='text-red-400' onClick={logout}>
                             <LogOut className='mr-2 h-4 w-4'/>
                             <span>Logout</span></DropdownMenuItem>
                     </DropdownMenuContent>
                     </DropdownMenu>
-            )
+                )
         }
         </div>
     </nav>

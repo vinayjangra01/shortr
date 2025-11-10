@@ -8,6 +8,9 @@ import Dashboard from './pages/dashboard';
 import LinkPage from './pages/link';
 import RedirectLink from './pages/redirect-link';
 import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './contexts/AuthContext';
+import PublicRoute from './components/PublicRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 
 
 const router = createBrowserRouter(
@@ -20,19 +23,31 @@ const router = createBrowserRouter(
       },
       {
         path: '/dashboard',
-        element: <Dashboard />
+        element: 
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
       },
       {
         path: '/auth',
-        element: <AuthPage />
+        element: 
+        (<PublicRoute>
+          <AuthPage />
+          </PublicRoute>)
       },
       {
         path: '/link/:id',
-        element: <LinkPage />
+        element: 
+        <ProtectedRoute>
+          <LinkPage />
+        </ProtectedRoute>
       },
       {
         path: '/:id',
-        element: <RedirectLink />
+        element: 
+        <ProtectedRoute>
+          <RedirectLink />
+        </ProtectedRoute>
       },
     ]
   }]
@@ -40,10 +55,10 @@ const router = createBrowserRouter(
 
 function App() {
   return (
-    <>
-    <RouterProvider router={router}/>
-    <Toaster />
-    </>
+    <AuthProvider>
+      <RouterProvider router={router}/>
+      <Toaster />
+    </AuthProvider>
   )
 }
 
