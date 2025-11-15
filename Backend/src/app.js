@@ -19,7 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
 
-// rate limiting to all API routes
+// rate limiting to all API routes, slightly loose
 app.use('/api', apiLimiter);
 
 

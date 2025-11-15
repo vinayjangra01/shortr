@@ -51,11 +51,10 @@ class AuthController {
       if (error.name === 'ValidationError') {
         return res.status(400).json({
           success: false,
-          message: 'Validation error',
+          message: error.message || "Validation Error",
           errors: error.errors,
         });
       }
-      //pass to global error handler
       next(error);
     }
   }
