@@ -8,5 +8,7 @@ router.post("/", optionalAuth, UrlController.createShortUrl);
 
 router.get("/", authenticateToken, UrlController.getUserUrls);
 router.get("/:id/analytics", authenticateToken, UrlController.getUrlAnalytics);
+router.put("/:id", authenticateToken, UrlController.updateUrl);
+router.delete("/:id", authenticateToken, UrlController.deleteUrl);
 
 export default router;
