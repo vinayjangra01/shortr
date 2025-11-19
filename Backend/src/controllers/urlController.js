@@ -73,6 +73,7 @@ class UrlController {
                 title: url.title,
                 visitCount: parseInt(url.visit_count),
                 createdAt: url.created_at,
+                updatedAt: url.updated_at,
             }));
 
             res.json({
@@ -91,7 +92,7 @@ class UrlController {
             const userId = req.user.userId;
 
             const urls = await UrlModel.findByUserId(userId);
-            const url = urls.find((u) => u.id === parseInt(id));
+            const url = urls.find((u) => parseInt(u.id) === parseInt(id));
 
             if (!url) {
                 return res.status(404).json({
@@ -119,7 +120,7 @@ class UrlController {
         }
    }
    
-   static async redirectUrl(req, res, next) {
+    static async redirectUrl(req, res, next) {
     try {
       const { shortUrl } = req.params;
 
@@ -141,6 +142,96 @@ class UrlController {
 
       // Redirect to original 
       res.redirect(301, url.original_url);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async updateUrl(req, res, next) {
+    try {
+      const { id } = req.params;
+      const userId = req.user.userId;
+
+      const validateData = await urlSchema.validate(req.body, {
+        abortEarly: false,
+        stripUnknown: true,
+      });
+
+      const { originalUrl, customUrl, title } = validateData;
+
+      // Check if URL exists and belongs to user
+      const existingUrl = await UrlModel.findById(parseInt(id), userId);
+      if (!existingUrl) {
+        return res.status(404).json({
+          success: false,
+          message: 'URL not found or unauthorized',
+        });
+      }
+
+      // Check if custom URL is being changed and if it's already taken
+      if (customUrl && customUrl !== existingUrl.custom_url) {
+        const exists = await UrlModel.customUrlExists(customUrl);
+        if (exists) {
+          return res.status(409).json({
+            success: false,
+            message: 'Custom URL already taken',
+          });
+        }
+      }
+
+      const updatedUrl = await UrlModel.update({
+        id: parseInt(id),
+        userId,
+        originalUrl,
+        customUrl,
+        title,
+      });
+
+      if (!updatedUrl) {
+        return res.status(404).json({
+          success: false,
+          message: 'URL not found or unauthorized',
+        });
+      }
+
+      const shortUrl = `${config.baseUrl}/${updatedUrl.custom_url || updatedUrl.short_url}`;
+
+      res.json({
+        success: true,
+        message: 'URL updated successfully',
+        data: {
+          id: updatedUrl.id,
+          originalUrl: updatedUrl.original_url,
+          shortUrl,
+          customUrl: updatedUrl.custom_url,
+          title: updatedUrl.title,
+          createdAt: updatedUrl.created_at,
+          updatedAt: updatedUrl.updated_at,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async deleteUrl(req, res, next) {
+    try {
+      const { id } = req.params;
+      const userId = req.user.userId;
+
+      const deletedUrl = await UrlModel.delete(parseInt(id), userId);
+
+      if (!deletedUrl) {
+        return res.status(404).json({
+          success: false,
+          message: 'URL not found or unauthorized',
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'URL deleted successfully',
+      });
     } catch (error) {
       next(error);
     }
