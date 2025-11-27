@@ -45,9 +45,10 @@ function Header() {
                         <DropdownMenuItem>
                             <User />
                             Profile</DropdownMenuItem>
-                        <DropdownMenuItem>
-                            <LinkIcon className='mr-2 h-4 w-4'>My Links</LinkIcon>
-                            My Links</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                            <LinkIcon className='mr-2 h-4 w-4' />
+                            My Links
+                        </DropdownMenuItem>
                         <DropdownMenuItem className='text-red-400' onClick={logout}>
                             <LogOut className='mr-2 h-4 w-4'/>
                             <span>Logout</span></DropdownMenuItem>
