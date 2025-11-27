@@ -23,6 +23,13 @@ class UrlModel{
         return result.rows[0] || null;
     }
 
+
+
+    static async updateQr(id, qrKey){
+        const query = `UPDATE urls SET qr_code = $1 WHERE id = $2`
+        return pool.query(query, [qrKey, id]);
+    }
+
     //there must be some common column between two tables
     static async findByUserId(userId){
 

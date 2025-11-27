@@ -33,7 +33,7 @@ app.get("/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/urls", urlRoutes);
-
+app.get("/api/url/:id/qr", )
 app.get("/:shortUrl", UrlController.redirectUrl);
 
 //no route matches

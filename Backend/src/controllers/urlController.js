@@ -2,6 +2,9 @@ import {nanoid} from 'nanoid';
 import UrlModel from "../models/urlModel.js";
 import { urlSchema } from '../utils/validation.js';
 import config from '../config/env.js'
+import QRCode from 'qrcode';
+import uploadQR from '../utils/uploadToS3.js'
+import  getSignedQrUrl from '../utils/getSignedUrl.js'
 
 class UrlController {
 
@@ -39,6 +42,12 @@ class UrlController {
                 qrCode: null
             });
 
+            const base64QR = await QRCode.toDataURL(shortUrl);
+
+            const s3Key = await uploadQR(base64QR);
+
+            await UrlModel.updateQr(url.id, s3Key);
+
             res.status(201).json({
                 success: true,
                 message: "Short URL created successfully",
@@ -48,7 +57,8 @@ class UrlController {
                     shortUrl,
                     customUrl: url.custom_url,
                     title: url.title,
-                    createdAt: url.created_at
+                    createdAt: url.created_at,
+                    qrCodeS3Key: s3Key 
                 },
             });
         }
@@ -234,6 +244,34 @@ class UrlController {
       });
     } catch (error) {
       next(error);
+    }
+  }
+
+
+
+  static async getQr(req, res, next)
+  {
+    try{
+      const {id} = req.params;
+
+      const record  = await UrlModel.findById(id);
+      
+      if(!record || record.qr_code)
+      {
+        return res.status(404).json({success: false, 
+          message: "QR not found"
+        })
+      }
+
+      //generate signed url
+      const signed = getSignedQrUrl(record.qr_code);
+
+      return res.json({
+        success: true,
+        qrUrl: signed
+      });
+    } catch (err) {
+      next(err);
     }
   }
 
